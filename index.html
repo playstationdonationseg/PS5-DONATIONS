@@ -503,8 +503,13 @@ Every contribution is voluntary and appreciated.</p>
         </div>
         <div>
           <label for="input-note" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminNoteLabel">Verification Note (Optional)</label>
-          <input type="text" id="input-note" placeholder="e.g., Initial launch state" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-sm text-slate-900" />
+          <input type="text" id="input-note" placeholder="e.g., Verified batch update" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-sm text-slate-900" />
         </div>
+        <div>
+          <label for="input-owner-password" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminPassLabel">Owner Password</label>
+          <input type="password" id="input-owner-password" required placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-sm text-slate-900" />
+        </div>
+        <p id="admin-error-msg" class="hidden text-xs text-rose-600 font-medium"></p>
         <div class="flex items-center justify-end gap-2.5 pt-2">
           <button type="button" onclick="resetAdminProgress()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100" data-i18n="adminResetBtn">Reset to 0 EGP</button>
           <button type="submit" class="px-4 py-2 rounded-xl bg-psBlue hover:bg-psBright text-white text-xs font-bold" data-i18n="adminSaveBtn">Save Verified Total</button>
@@ -638,6 +643,39 @@ Every contribution is voluntary and appreciated.</p>
     };
     const TARGET_EGP = CAMPAIGN_CONFIG.targetEgp;
 
+    // Paste your free Supabase project URL & Anon Key here for instant live sync across PC & Mobile
+    const LIVE_SYNC_CONFIG = {
+      supabaseUrl: '',
+      supabaseAnonKey: ''
+    };
+
+    function isLiveSyncEnabled() {
+      return Boolean(LIVE_SYNC_CONFIG.supabaseUrl && LIVE_SYNC_CONFIG.supabaseAnonKey);
+    }
+
+    async function fetchLiveProgress() {
+      if (!isLiveSyncEnabled()) return;
+      try {
+        const res = await fetch(
+          `${LIVE_SYNC_CONFIG.supabaseUrl}/rest/v1/campaign_progress?id=eq.1&select=collected_egp,note`,
+          {
+            headers: {
+              apikey: LIVE_SYNC_CONFIG.supabaseAnonKey,
+              Authorization: `Bearer ${LIVE_SYNC_CONFIG.supabaseAnonKey}`
+            }
+          }
+        );
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          campaignState.collectedEgp = Number(rows[0].collected_egp) || 0;
+          campaignState.note = rows[0].note || '';
+          persistState();
+          renderProgress();
+        }
+      } catch (e) {}
+    }
+
     let currentLang = 'en';
     let campaignState = {
       collectedEgp: CAMPAIGN_CONFIG.collectedEgp,
@@ -752,6 +790,9 @@ Every contribution is voluntary and appreciated.</p>
         adminCodeErr: 'Invalid owner verification code.',
         adminInputLabel: 'Verified Collected Amount (EGP)',
         adminNoteLabel: 'Verification Note (Optional)',
+        adminPassLabel: 'Owner Password',
+        adminPassErr: 'Invalid password or sync error.',
+        adminLocalOnlyToast: 'Saved locally (add Supabase config for live cross-device sync).',
         adminResetBtn: 'Reset to 0 EGP',
         adminSaveBtn: 'Save Verified Total',
         archModalTitle: 'Paymob Hosted Checkout Architecture',
@@ -870,6 +911,9 @@ Every contribution is voluntary and appreciated.</p>
         adminCodeErr: 'كود التحقق غير صحيح.',
         adminInputLabel: 'المبلغ المجمّع الموثّق (ج.م)',
         adminNoteLabel: 'ملاحظة التوثيق (اختياري)',
+        adminPassLabel: 'كلمة مرور المالك',
+        adminPassErr: 'كلمة المرور غير صحيحة أو تعذر التحديث.',
+        adminLocalOnlyToast: 'تم الحفظ محلياً (أضف إعدادات Supabase للمزامنة الحية بين الأجهزة).',
         adminResetBtn: 'إعادة ضبط إلى 0 ج.م',
         adminSaveBtn: 'حفظ المبلغ الموثّق',
         archModalTitle: 'بنية الربط المستقبلية مع Paymob',
@@ -964,6 +1008,8 @@ Every contribution is voluntary and appreciated.</p>
       document.getElementById('admin-code-err').classList.add('hidden');
       document.getElementById('input-collected').value = campaignState.collectedEgp;
       document.getElementById('input-note').value = campaignState.note;
+      document.getElementById('input-owner-password').value = '';
+      document.getElementById('admin-error-msg').classList.add('hidden');
       const modal = document.getElementById('admin-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -975,21 +1021,69 @@ Every contribution is voluntary and appreciated.</p>
       modal.classList.remove('flex');
     }
 
-    function saveAdminProgress(e) {
-      e.preventDefault();
-      if (!isOwnerVerified()) return;
-      const val = Math.max(0, Math.min(TARGET_EGP, Number(document.getElementById('input-collected').value) || 0));
-      const note = document.getElementById('input-note').value.trim();
-      campaignState.collectedEgp = val;
-      campaignState.note = note;
-      persistState();
-      renderProgress();
-      closeAdminModal();
-      showToast(i18n[currentLang].toastSaved);
+    async function pushLiveUpdate(val, note, password) {
+      const res = await fetch(`${LIVE_SYNC_CONFIG.supabaseUrl}/rest/v1/rpc/update_campaign_progress`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: LIVE_SYNC_CONFIG.supabaseAnonKey,
+          Authorization: `Bearer ${LIVE_SYNC_CONFIG.supabaseAnonKey}`
+        },
+        body: JSON.stringify({
+          secret_pass: password,
+          new_amount: val,
+          new_note: note
+        })
+      });
+      if (!res.ok) throw new Error('Update failed');
+      const ok = await res.json();
+      if (ok !== true) throw new Error('Invalid password');
     }
 
-    function resetAdminProgress() {
-      if (!isOwnerVerified()) return;
+    async function saveAdminProgress(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('admin-error-msg');
+      errEl.classList.add('hidden');
+      const val = Math.max(0, Math.min(TARGET_EGP, Number(document.getElementById('input-collected').value) || 0));
+      const note = document.getElementById('input-note').value.trim();
+      const pass = document.getElementById('input-owner-password').value;
+
+      if (isLiveSyncEnabled()) {
+        try {
+          await pushLiveUpdate(val, note, pass);
+          campaignState.collectedEgp = val;
+          campaignState.note = note;
+          persistState();
+          renderProgress();
+          closeAdminModal();
+          showToast(i18n[currentLang].toastSaved);
+        } catch (err) {
+          errEl.textContent = i18n[currentLang].adminPassErr;
+          errEl.classList.remove('hidden');
+        }
+      } else {
+        campaignState.collectedEgp = val;
+        campaignState.note = note;
+        persistState();
+        renderProgress();
+        closeAdminModal();
+        showToast(i18n[currentLang].adminLocalOnlyToast);
+      }
+    }
+
+    async function resetAdminProgress() {
+      const errEl = document.getElementById('admin-error-msg');
+      errEl.classList.add('hidden');
+      const pass = document.getElementById('input-owner-password').value;
+      if (isLiveSyncEnabled()) {
+        try {
+          await pushLiveUpdate(0, '', pass);
+        } catch (err) {
+          errEl.textContent = i18n[currentLang].adminPassErr;
+          errEl.classList.remove('hidden');
+          return;
+        }
+      }
       campaignState.collectedEgp = 0;
       campaignState.note = '';
       persistState();
@@ -1150,6 +1244,8 @@ Every contribution is voluntary and appreciated.</p>
       if (window.lucide) lucide.createIcons();
       loadState();
       setLanguage(currentLang);
+      fetchLiveProgress();
+      setInterval(fetchLiveProgress, 30000);
 
       const topBtn = document.getElementById('back-to-top');
       window.addEventListener('scroll', () => {
