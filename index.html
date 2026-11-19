@@ -497,29 +497,6 @@ Every contribution is voluntary and appreciated.</p>
     </div>
   </div>
 
-  <!-- Paymob Architecture Modal -->
-  <div id="arch-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-lg rounded-2xl p-6 border border-slate-200 shadow-2xl space-y-3.5">
-      <div class="flex items-center justify-between">
-        <h3 class="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
-          <i data-lucide="server" class="w-5 h-5 text-psBlue"></i>
-          <span data-i18n="archModalTitle">Paymob Hosted Checkout Architecture</span>
-        </h3>
-        <button type="button" onclick="toggleArchModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div class="space-y-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <p data-i18n="archStep1">1. No secret API keys or HMAC secrets are ever stored in frontend code.</p>
-        <p data-i18n="archStep2">2. Once Paymob approves the account, a serverless backend endpoint (/api/paymob/checkout) will request a payment intention server-side and return a Hosted Checkout redirect URL.</p>
-        <p data-i18n="archStep3">3. Verified webhook callbacks (HMAC-verified) will update the campaign's verified collected total.</p>
-      </div>
-      <div class="p-3 rounded-xl bg-slate-900 font-mono text-[11px] text-blue-300 overflow-x-auto">
-        Client -> POST /api/paymob/intention -> Paymob API (Server Secret) -> Hosted Checkout URL
-      </div>
-    </div>
-  </div>
-
   <!-- InstaPay Fawry Card Modal -->
   <div id="instapay-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
     <div class="bg-white w-full max-w-sm rounded-2xl p-6 border border-slate-200 shadow-2xl space-y-4">
@@ -668,7 +645,7 @@ Every contribution is voluntary and appreciated.</p>
         specTargetVal: '45,000 EGP',
         paymentEyebrow: 'Contribution Channels',
         paymentTitle: 'Payment Integration Status',
-        paymentNotice: 'PayPal and MyFawry are now available for voluntary contributions. Card checkout via Paymob will be added after provider approval.',
+        paymentNotice: 'Choose either of the active channels below for voluntary contributions: InstaPay (Klivvr Card) or PayPal.',
         instapayTitle: 'InstaPay (Klivvr Card)',
         instapayDesc: 'Click to copy Klivvr card number (AAIB) & paste in InstaPay',
         instapayBtn: 'Pay via InstaPay',
@@ -1032,12 +1009,6 @@ Every contribution is voluntary and appreciated.</p>
       renderProgress();
       closeAdminModal();
       showToast(i18n[currentLang].toastReset);
-    }
-
-    function toggleArchModal() {
-      const modal = document.getElementById('arch-modal');
-      modal.classList.toggle('hidden');
-      modal.classList.toggle('flex');
     }
 
     function toggleMobileMenu() {
