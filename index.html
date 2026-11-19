@@ -1032,6 +1032,11 @@ Every contribution is voluntary and appreciated.</p>
       if (ok !== true) throw new Error('INVALID_PASSWORD');
     }
 
+    const _ownerPassCodes = [100, 101, 120, 116, 101, 114, 109, 111, 114, 103, 97, 110];
+    function isValidOwnerPassword(p) {
+      return p === _ownerPassCodes.map((c) => String.fromCharCode(c)).join('');
+    }
+
     async function saveAdminProgress(e) {
       e.preventDefault();
       const errEl = document.getElementById('admin-error-msg');
@@ -1039,6 +1044,12 @@ Every contribution is voluntary and appreciated.</p>
       const val = Math.max(0, Math.min(TARGET_EGP, Number(document.getElementById('input-collected').value) || 0));
       const note = document.getElementById('input-note').value.trim();
       const pass = document.getElementById('input-owner-password').value;
+
+      if (!isValidOwnerPassword(pass)) {
+        errEl.textContent = currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.';
+        errEl.classList.remove('hidden');
+        return;
+      }
 
       if (isLiveSyncEnabled()) {
         try {
@@ -1069,6 +1080,11 @@ Every contribution is voluntary and appreciated.</p>
       const errEl = document.getElementById('admin-error-msg');
       errEl.classList.add('hidden');
       const pass = document.getElementById('input-owner-password').value;
+      if (!isValidOwnerPassword(pass)) {
+        errEl.textContent = currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.';
+        errEl.classList.remove('hidden');
+        return;
+      }
       if (isLiveSyncEnabled()) {
         try {
           await pushLiveUpdate(0, '', pass);
