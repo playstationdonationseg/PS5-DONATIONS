@@ -310,7 +310,7 @@ Every contribution is voluntary and appreciated.</p>
               <h2 class="font-display font-bold text-xl text-slate-900 mt-0.5 mb-3" data-i18n="paymentTitle">Payment Integration Status</h2>
 
               <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs sm:text-sm text-slate-800 font-medium mb-4" data-i18n="paymentNotice">
-                Choose any of the active channels below for voluntary contributions: InstaPay (Klivvr Card), PayPal, or MyFawry.
+                Choose either of the active channels below for voluntary contributions: InstaPay (Klivvr Card) or PayPal.
               </div>
 
               <div class="space-y-2.5">
@@ -350,23 +350,7 @@ Every contribution is voluntary and appreciated.</p>
                   </a>
                 </div>
 
-                <!-- MyFawry (Protected Click-to-Reveal) -->
-                <div class="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-200 flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <i data-lucide="wallet" class="w-5 h-5 text-psBlue shrink-0"></i>
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="font-semibold text-sm text-slate-900" data-i18n="fawryTitle">MyFawry</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800" data-i18n="statusActive">Active</span>
-                      </div>
-                      <div class="text-xs text-slate-500" data-i18n="fawryProtectedDesc">Protected • Quick check required to view number</div>
-                    </div>
-                  </div>
-                  <button type="button" onclick="openFawryModal()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                    <span data-i18n="fawryRevealBtn">View MyFawry Number</span>
-                  </button>
-                </div>
+
 
 
               </div>
@@ -492,7 +476,11 @@ Every contribution is voluntary and appreciated.</p>
         Update the verified collected amount (EGP) from approved providers. Starts at 0 EGP by default.
       </p>
       <form onsubmit="saveAdminProgress(event)" class="space-y-3.5">
-
+        <div>
+          <label for="input-passcode" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminCodeLabel">Owner Verification Code</label>
+          <input type="password" id="input-passcode" autocomplete="off" required placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-sm text-slate-900" />
+        </div>
+        <p id="admin-code-err" class="hidden text-xs text-rose-600 font-medium" data-i18n="adminCodeErr">Invalid owner verification code.</p>
         <div>
           <label for="input-collected" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminInputLabel">Verified Collected Amount (EGP)</label>
           <input type="number" id="input-collected" min="0" max="45000" step="1" value="0" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-slate-900 font-bold" />
@@ -581,47 +569,6 @@ Every contribution is voluntary and appreciated.</p>
     </div>
   </div>
 
-  <!-- MyFawry Protected Reveal Modal -->
-  <div id="fawry-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 border border-slate-200 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
-          <i data-lucide="shield" class="w-5 h-5 text-psBlue"></i>
-          <span data-i18n="fawryModalTitle">MyFawry Contribution</span>
-        </h3>
-        <button type="button" onclick="closeFawryModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div id="fawry-gate" class="space-y-3">
-        <p class="text-xs text-slate-600 leading-relaxed" data-i18n="fawryGateDesc">
-          To protect privacy from automated bots, answer this quick check to reveal the MyFawry number:
-        </p>
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-          <span class="text-sm font-bold text-slate-800" id="fawry-challenge-q">What is 5 + 3?</span>
-        </div>
-        <input type="number" id="fawry-challenge-input" placeholder="?" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-center font-bold text-slate-900" />
-        <p id="fawry-gate-err" class="hidden text-xs text-rose-600 font-medium text-center" data-i18n="fawryGateErr">Incorrect answer, please try again.</p>
-        <button type="button" onclick="verifyFawryGate()" class="w-full py-2.5 rounded-xl bg-psBlue hover:bg-psBright text-white text-xs font-bold transition-colors" data-i18n="fawryVerifyBtn">
-          Reveal Number
-        </button>
-      </div>
-
-      <div id="fawry-revealed" class="hidden space-y-3 text-center">
-        <p class="text-xs text-slate-500" data-i18n="fawryRevealedLabel">MyFawry Wallet / Reference Number:</p>
-        <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 font-display font-extrabold text-xl tracking-wider text-psBlue select-all" id="fawry-number-display"></div>
-        <button type="button" onclick="copyFawryNumber()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold inline-flex items-center justify-center gap-2 transition-colors">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-          <span data-i18n="fawryCopyBtn">Copy MyFawry Number</span>
-        </button>
-        <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5" data-i18n="modalSyncNote">
-          Note: Your contribution will appear on the progress bar within ~12 hours after manual verification.
-        </p>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-5 start-5 z-50 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-xl opacity-0 translate-y-3 pointer-events-none transition-all duration-300 flex items-center gap-2">
     <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
@@ -641,8 +588,8 @@ Every contribution is voluntary and appreciated.</p>
 
     // Paste your free Supabase project URL & Anon Key here for instant live sync across PC & Mobile
     const LIVE_SYNC_CONFIG = {
-      supabaseUrl: 'https://oqagynvxtqrzaosozvba.supabase.co',
-      supabaseAnonKey: 'sb_publishable_pOIK-Z1POsIwBjPess0ytw_4nBxrapn'
+      supabaseUrl: '',
+      supabaseAnonKey: ''
     };
 
     function isLiveSyncEnabled() {
@@ -655,7 +602,10 @@ Every contribution is voluntary and appreciated.</p>
         const res = await fetch(
           `${LIVE_SYNC_CONFIG.supabaseUrl}/rest/v1/campaign_progress?id=eq.1&select=collected_egp,note`,
           {
-            headers: getSupabaseHeaders()
+            headers: {
+              apikey: LIVE_SYNC_CONFIG.supabaseAnonKey,
+              Authorization: `Bearer ${LIVE_SYNC_CONFIG.supabaseAnonKey}`
+            }
           }
         );
         if (!res.ok) return;
@@ -844,7 +794,7 @@ Every contribution is voluntary and appreciated.</p>
         specTargetVal: '45,000 ج.م',
         paymentEyebrow: 'وسائل المساهمة',
         paymentTitle: 'حالة بوابات الدفع',
-        paymentNotice: 'اختر أي وسيلة متاحة بالأسفل للمساهمات الاختيارية: InstaPay (كارت Klivvr) أو PayPal أو MyFawry.',
+        paymentNotice: 'اختر أي وسيلة متاحة بالأسفل للمساهمات الاختيارية: InstaPay (كارت Klivvr) أو PayPal.',
         instapayTitle: 'InstaPay (كارت Klivvr)',
         instapayDesc: 'اضغط لنسخ رقم كارت Klivvr (البنك العربي الأفريقي) ولصقه في InstaPay',
         instapayBtn: 'ادفع عبر InstaPay',
@@ -986,7 +936,19 @@ Every contribution is voluntary and appreciated.</p>
       // Session preview only; update CAMPAIGN_CONFIG.collectedEgp in index.html to publish globally.
     }
 
+    const _ownerCode = [100, 101, 120, 116, 101, 114, 109, 111, 114, 103, 97, 110];
+
+    function isOwnerVerified() {
+      const entered = document.getElementById('input-passcode').value;
+      const expected = _ownerCode.map((c) => String.fromCharCode(c)).join('');
+      const ok = entered === expected;
+      document.getElementById('admin-code-err').classList.toggle('hidden', ok);
+      return ok;
+    }
+
     function openAdminModal() {
+      document.getElementById('input-passcode').value = '';
+      document.getElementById('admin-code-err').classList.add('hidden');
       document.getElementById('input-collected').value = campaignState.collectedEgp;
       document.getElementById('input-note').value = campaignState.note;
       document.getElementById('input-owner-password').value = '';
@@ -1002,39 +964,23 @@ Every contribution is voluntary and appreciated.</p>
       modal.classList.remove('flex');
     }
 
-    function getSupabaseHeaders(extra) {
-      const h = { apikey: LIVE_SYNC_CONFIG.supabaseAnonKey };
-      if (LIVE_SYNC_CONFIG.supabaseAnonKey.startsWith('eyJ')) {
-        h.Authorization = `Bearer ${LIVE_SYNC_CONFIG.supabaseAnonKey}`;
-      }
-      return Object.assign(h, extra || {});
-    }
-
     async function pushLiveUpdate(val, note, password) {
       const res = await fetch(`${LIVE_SYNC_CONFIG.supabaseUrl}/rest/v1/rpc/update_campaign_progress`, {
         method: 'POST',
-        headers: getSupabaseHeaders({ 'Content-Type': 'application/json' }),
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: LIVE_SYNC_CONFIG.supabaseAnonKey,
+          Authorization: `Bearer ${LIVE_SYNC_CONFIG.supabaseAnonKey}`
+        },
         body: JSON.stringify({
           secret_pass: password,
           new_amount: val,
           new_note: note
         })
       });
-      if (!res.ok) {
-        let detail = `HTTP ${res.status}`;
-        try {
-          const body = await res.json();
-          if (body && body.message) detail += `: ${body.message}`;
-        } catch (e) {}
-        throw new Error(`Sync error (${detail})`);
-      }
+      if (!res.ok) throw new Error('Update failed');
       const ok = await res.json();
-      if (ok !== true) throw new Error('INVALID_PASSWORD');
-    }
-
-    const _ownerPassCodes = [100, 101, 120, 116, 101, 114, 109, 111, 114, 103, 97, 110];
-    function isValidOwnerPassword(p) {
-      return p === _ownerPassCodes.map((c) => String.fromCharCode(c)).join('');
+      if (ok !== true) throw new Error('Invalid password');
     }
 
     async function saveAdminProgress(e) {
@@ -1044,12 +990,6 @@ Every contribution is voluntary and appreciated.</p>
       const val = Math.max(0, Math.min(TARGET_EGP, Number(document.getElementById('input-collected').value) || 0));
       const note = document.getElementById('input-note').value.trim();
       const pass = document.getElementById('input-owner-password').value;
-
-      if (!isValidOwnerPassword(pass)) {
-        errEl.textContent = currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.';
-        errEl.classList.remove('hidden');
-        return;
-      }
 
       if (isLiveSyncEnabled()) {
         try {
@@ -1061,9 +1001,7 @@ Every contribution is voluntary and appreciated.</p>
           closeAdminModal();
           showToast(i18n[currentLang].toastSaved);
         } catch (err) {
-          errEl.textContent = err && err.message === 'INVALID_PASSWORD'
-            ? (currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.')
-            : (err && err.message ? err.message : i18n[currentLang].adminPassErr);
+          errEl.textContent = i18n[currentLang].adminPassErr;
           errEl.classList.remove('hidden');
         }
       } else {
@@ -1080,18 +1018,11 @@ Every contribution is voluntary and appreciated.</p>
       const errEl = document.getElementById('admin-error-msg');
       errEl.classList.add('hidden');
       const pass = document.getElementById('input-owner-password').value;
-      if (!isValidOwnerPassword(pass)) {
-        errEl.textContent = currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.';
-        errEl.classList.remove('hidden');
-        return;
-      }
       if (isLiveSyncEnabled()) {
         try {
           await pushLiveUpdate(0, '', pass);
         } catch (err) {
-          errEl.textContent = err && err.message === 'INVALID_PASSWORD'
-            ? (currentLang === 'ar' ? 'كلمة مرور المالك غير صحيحة.' : 'Invalid owner password.')
-            : (err && err.message ? err.message : i18n[currentLang].adminPassErr);
+          errEl.textContent = i18n[currentLang].adminPassErr;
           errEl.classList.remove('hidden');
           return;
         }
@@ -1198,54 +1129,6 @@ Every contribution is voluntary and appreciated.</p>
 
     function copyInstaPayCard() {
       copyTextSilent(getInstaPayCard(), i18n[currentLang].instapayCopiedToast);
-    }
-
-    // Protected MyFawry number (decoded only after human check)
-    const _fwCodes = [48, 49, 48, 54, 55, 52, 53, 55, 52, 49, 50];
-    let fawryAnswer = 8;
-
-    function openFawryModal() {
-      const a = Math.floor(Math.random() * 5) + 2;
-      const b = Math.floor(Math.random() * 5) + 2;
-      fawryAnswer = a + b;
-      document.getElementById('fawry-challenge-q').textContent =
-        currentLang === 'ar' ? `كم يساوي ${a} + ${b}؟` : `What is ${a} + ${b}?`;
-      document.getElementById('fawry-challenge-input').value = '';
-      document.getElementById('fawry-gate-err').classList.add('hidden');
-      document.getElementById('fawry-gate').classList.remove('hidden');
-      document.getElementById('fawry-revealed').classList.add('hidden');
-      document.getElementById('fawry-number-display').textContent = '';
-      const modal = document.getElementById('fawry-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeFawryModal() {
-      const modal = document.getElementById('fawry-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.getElementById('fawry-number-display').textContent = '';
-    }
-
-    function verifyFawryGate() {
-      const val = Number(document.getElementById('fawry-challenge-input').value);
-      if (val === fawryAnswer) {
-        const num = _fwCodes.map((c) => String.fromCharCode(c)).join('');
-        document.getElementById('fawry-number-display').textContent = num;
-        document.getElementById('fawry-gate').classList.add('hidden');
-        document.getElementById('fawry-revealed').classList.remove('hidden');
-      } else {
-        document.getElementById('fawry-gate-err').classList.remove('hidden');
-      }
-    }
-
-    function copyFawryNumber() {
-      const num = _fwCodes.map((c) => String.fromCharCode(c)).join('');
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(num).then(() => showToast(i18n[currentLang].fawryCopiedToast)).catch(() => fallbackCopy(num));
-      } else {
-        fallbackCopy(num);
-      }
     }
 
     function scrollToTop() {
