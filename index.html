@@ -188,15 +188,15 @@
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div class="text-[11px] text-slate-500 font-medium" data-i18n="kpiCollectedLabel">Collected</div>
-                  <div class="font-display font-bold text-lg text-slate-900 mt-0.5" id="val-collected">0 EGP</div>
+                  <div class="font-display font-bold text-lg text-slate-900 mt-0.5" id="val-collected">80 EGP</div>
                 </div>
                 <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-200">
                   <div class="text-[11px] text-psBlue font-medium" data-i18n="kpiPercentLabel">Completed</div>
-                  <div class="font-display font-bold text-lg text-psBlue mt-0.5" id="val-percent">0.0%</div>
+                  <div class="font-display font-bold text-lg text-psBlue mt-0.5" id="val-percent">0.2%</div>
                 </div>
                 <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div class="text-[11px] text-slate-500 font-medium" data-i18n="kpiRemainingLabel">Remaining</div>
-                  <div class="font-display font-bold text-lg text-slate-900 mt-0.5" id="val-remaining">45,000 EGP</div>
+                  <div class="font-display font-bold text-lg text-slate-900 mt-0.5" id="val-remaining">44,920 EGP</div>
                 </div>
                 <div class="p-3 rounded-xl bg-slate-900 text-white">
                   <div class="text-[11px] text-slate-300 font-medium" data-i18n="kpiTargetLabel">Target</div>
@@ -208,11 +208,11 @@
               <div class="space-y-1.5">
                 <div class="flex items-center justify-between text-xs font-medium text-slate-600">
                   <span data-i18n="progressBarStart">0 EGP</span>
-                  <span class="text-psBlue font-bold" id="progress-status-text">0.0% of 45,000 EGP Goal</span>
+                  <span class="text-psBlue font-bold" id="progress-status-text">0.2% of 45,000 EGP Goal</span>
                   <span data-i18n="progressBarEnd">45,000 EGP</span>
                 </div>
                 <div class="w-full h-3.5 rounded-full bg-slate-200 overflow-hidden">
-                  <div id="progress-bar-fill" class="h-full rounded-full bg-gradient-to-r from-psBlue to-psBright transition-all duration-700" style="width: 0%;"></div>
+                  <div id="progress-bar-fill" class="h-full rounded-full bg-gradient-to-r from-psBlue to-psBright transition-all duration-700" style="width: 0.2%; min-width: 6px;"></div>
                 </div>
               </div>
             </div>
@@ -220,7 +220,7 @@
             <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
               <div class="flex items-center gap-2 text-xs text-slate-500">
                 <i data-lucide="shield-check" class="w-4 h-4 text-psBlue shrink-0"></i>
-                <span id="last-updated-label" data-i18n="lastUpdatedDefault">Initial launch state: 0 EGP verified contributions. Zero fake progress.</span>
+                <span id="last-updated-label" data-i18n="lastUpdatedDefault">Last verified update: 80 EGP collected (Nov 19, 2026).</span>
               </div>
               <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2 text-xs text-amber-900">
                 <i data-lucide="clock" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i>
@@ -624,11 +624,11 @@ Every contribution is voluntary and appreciated.</p>
 
   <script>
     const TARGET_EGP = 45000;
-    const STORAGE_KEY = 'ps5_dream_fund_state_v1';
+    const STORAGE_KEY = 'ps5_dream_fund_state_v2';
 
     let currentLang = 'en';
     let campaignState = {
-      collectedEgp: 0,
+      collectedEgp: 80,
       note: ''
     };
 
@@ -661,7 +661,7 @@ Every contribution is voluntary and appreciated.</p>
         kpiTargetLabel: 'Target',
         progressBarStart: '0 EGP',
         progressBarEnd: '45,000 EGP',
-        lastUpdatedDefault: 'Initial launch state: 0 EGP verified contributions. Zero fake progress.',
+        lastUpdatedDefault: 'Last verified update: 80 EGP collected (Nov 19, 2026).',
         ownerConfigBtn: 'Owner Update',
         aboutEyebrow: 'About The Campaign',
         aboutTitle: 'One Simple Personal Goal',
@@ -777,7 +777,7 @@ Every contribution is voluntary and appreciated.</p>
         kpiTargetLabel: 'الهدف',
         progressBarStart: '0 ج.م',
         progressBarEnd: '45,000 ج.م',
-        lastUpdatedDefault: 'حالة الإطلاق الأولية: 0 ج.م مساهمات موثّقة. بدون أي أرقام وهمية.',
+        lastUpdatedDefault: 'آخر تحديث موثّق: تم جمع 80 ج.م (19 نوفمبر 2026).',
         ownerConfigBtn: 'تحديث المالك',
         aboutEyebrow: 'عن الحملة',
         aboutTitle: 'هدف شخصي بسيط وواضح',
@@ -881,7 +881,7 @@ Every contribution is voluntary and appreciated.</p>
       document.getElementById('val-remaining').textContent = formatCurrency(remaining);
       document.getElementById('val-target').textContent = formatCurrency(TARGET_EGP);
       document.getElementById('val-percent').textContent = `${pct.toFixed(1)}%`;
-      document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+      const barEl = document.getElementById('progress-bar-fill'); barEl.style.width = `${pct}%`; barEl.style.minWidth = collected > 0 ? '6px' : '0px';
       document.getElementById('progress-status-text').textContent = `${pct.toFixed(1)}% ${i18n[currentLang].progressOf}`;
 
       const noteEl = document.getElementById('last-updated-label');
