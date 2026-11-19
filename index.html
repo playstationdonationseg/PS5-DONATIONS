@@ -493,6 +493,11 @@ Every contribution is voluntary and appreciated.</p>
       </p>
       <form onsubmit="saveAdminProgress(event)" class="space-y-3.5">
         <div>
+          <label for="input-passcode" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminCodeLabel">Owner Verification Code</label>
+          <input type="password" id="input-passcode" autocomplete="off" required placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-sm text-slate-900" />
+        </div>
+        <p id="admin-code-err" class="hidden text-xs text-rose-600 font-medium" data-i18n="adminCodeErr">Invalid owner verification code.</p>
+        <div>
           <label for="input-collected" class="block text-xs font-semibold text-slate-700 mb-1" data-i18n="adminInputLabel">Verified Collected Amount (EGP)</label>
           <input type="number" id="input-collected" min="0" max="45000" step="1" value="0" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-300 focus:border-psBlue focus:outline-none text-slate-900 font-bold" />
         </div>
@@ -736,6 +741,8 @@ Every contribution is voluntary and appreciated.</p>
         footerDisclosure: 'This is a personal fundraising campaign, not a registered charity or nonprofit organization. Contributions are entirely voluntary.',
         adminModalTitle: 'Owner Progress Configuration',
         adminModalDesc: 'Update the verified collected amount (EGP) from approved providers. Starts at 0 EGP by default.',
+        adminCodeLabel: 'Owner Verification Code',
+        adminCodeErr: 'Invalid owner verification code.',
         adminInputLabel: 'Verified Collected Amount (EGP)',
         adminNoteLabel: 'Verification Note (Optional)',
         adminResetBtn: 'Reset to 0 EGP',
@@ -852,6 +859,8 @@ Every contribution is voluntary and appreciated.</p>
         footerDisclosure: 'هذه حملة شخصية وليست جمعية خيرية أو مؤسسة غير ربحية. جميع المساهمات اختيارية.',
         adminModalTitle: 'إعدادات تحديث التقدم (للمالك)',
         adminModalDesc: 'قم بتحديث المبلغ المجمّع الموثّق (بالجنيه المصري) من المزودين المعتمدين. يبدأ بـ 0 ج.م افتراضياً.',
+        adminCodeLabel: 'كود تحقق المالك',
+        adminCodeErr: 'كود التحقق غير صحيح.',
         adminInputLabel: 'المبلغ المجمّع الموثّق (ج.م)',
         adminNoteLabel: 'ملاحظة التوثيق (اختياري)',
         adminResetBtn: 'إعادة ضبط إلى 0 ج.م',
@@ -939,7 +948,19 @@ Every contribution is voluntary and appreciated.</p>
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(campaignState)); } catch (e) {}
     }
 
+    const _ownerCode = [100, 101, 120, 116, 101, 114, 109, 111, 114, 103, 97, 110];
+
+    function isOwnerVerified() {
+      const entered = document.getElementById('input-passcode').value;
+      const expected = _ownerCode.map((c) => String.fromCharCode(c)).join('');
+      const ok = entered === expected;
+      document.getElementById('admin-code-err').classList.toggle('hidden', ok);
+      return ok;
+    }
+
     function openAdminModal() {
+      document.getElementById('input-passcode').value = '';
+      document.getElementById('admin-code-err').classList.add('hidden');
       document.getElementById('input-collected').value = campaignState.collectedEgp;
       document.getElementById('input-note').value = campaignState.note;
       const modal = document.getElementById('admin-modal');
@@ -955,6 +976,7 @@ Every contribution is voluntary and appreciated.</p>
 
     function saveAdminProgress(e) {
       e.preventDefault();
+      if (!isOwnerVerified()) return;
       const val = Math.max(0, Math.min(TARGET_EGP, Number(document.getElementById('input-collected').value) || 0));
       const note = document.getElementById('input-note').value.trim();
       campaignState.collectedEgp = val;
@@ -966,6 +988,7 @@ Every contribution is voluntary and appreciated.</p>
     }
 
     function resetAdminProgress() {
+      if (!isOwnerVerified()) return;
       campaignState.collectedEgp = 0;
       campaignState.note = '';
       persistState();
