@@ -628,13 +628,20 @@ Every contribution is voluntary and appreciated.</p>
   </div>
 
   <script>
-    const TARGET_EGP = 45000;
-    const STORAGE_KEY = 'ps5_dream_fund_state_v2';
+    // =========================================================
+    // PUBLIC CAMPAIGN CONFIG — Change collectedEgp here & deploy
+    // =========================================================
+    const CAMPAIGN_CONFIG = {
+      targetEgp: 45000,
+      collectedEgp: 80,
+      note: ''
+    };
+    const TARGET_EGP = CAMPAIGN_CONFIG.targetEgp;
 
     let currentLang = 'en';
     let campaignState = {
-      collectedEgp: 80,
-      note: ''
+      collectedEgp: CAMPAIGN_CONFIG.collectedEgp,
+      note: CAMPAIGN_CONFIG.note
     };
 
     const i18n = {
@@ -933,19 +940,13 @@ Every contribution is voluntary and appreciated.</p>
       try {
         const savedLang = localStorage.getItem('ps5_dream_lang');
         if (savedLang === 'ar' || savedLang === 'en') currentLang = savedLang;
-        const savedState = localStorage.getItem(STORAGE_KEY);
-        if (savedState) {
-          const parsed = JSON.parse(savedState);
-          if (typeof parsed.collectedEgp === 'number' && parsed.collectedEgp >= 0) {
-            campaignState.collectedEgp = parsed.collectedEgp;
-            campaignState.note = parsed.note || '';
-          }
-        }
       } catch (e) {}
+      campaignState.collectedEgp = CAMPAIGN_CONFIG.collectedEgp;
+      campaignState.note = CAMPAIGN_CONFIG.note;
     }
 
     function persistState() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(campaignState)); } catch (e) {}
+      // Session preview only; update CAMPAIGN_CONFIG.collectedEgp in index.html to publish globally.
     }
 
     const _ownerCode = [100, 101, 120, 116, 101, 114, 109, 111, 114, 103, 97, 110];
